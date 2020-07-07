@@ -86,6 +86,12 @@ class Account(
         val accountRole = AccountRole(this, role, expiry_at)
         (accountRoles as ArrayList).add(accountRole)
     }
+
+    fun getPermissions(): List<String> {
+        val permissions = mutableListOf<String>()
+        accountRoles.forEach { it.role.permissions.forEach { permission -> permissions.add(permission.name) } }
+        return permissions
+    }
 }
 
 

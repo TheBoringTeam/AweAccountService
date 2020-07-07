@@ -25,7 +25,7 @@ class EntryService @Autowired constructor(
      * @param json AccountCreateRequest object in string representation
      * @return AweResponse object that contains Account entity
      */
-    @KafkaListener(topicPattern = "createAccountTopic", groupId = "accountServiceGroup")
+    @KafkaListener(topicPattern = "createAccountTopic", groupId = "alpha-service-group")
     @SendTo
     fun createAccountRequest(json: String): String {
         _logger.info("Received request for creating user")
