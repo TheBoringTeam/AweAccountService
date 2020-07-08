@@ -1,6 +1,7 @@
 package com.awe.music.services
 
 import com.awe.music.persistence.dto.request.AccountCreateRequest
+import com.awe.music.persistence.dto.response.AccountResponse
 import com.awe.music.utils.builders.ResponseBuilder
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.log4j.Logger
@@ -31,7 +32,7 @@ class EntryService @Autowired constructor(
         _logger.info("Received request for creating user")
         val request = _objectMapper.readValue(json, AccountCreateRequest::class.java)
         _logger.info("Sending response...")
-        return ResponseBuilder().ok().value(_accountService.save(request)).get()
+        return ResponseBuilder().ok().value(AccountResponse(_accountService.save(request))).get()
     }
 
     /**
@@ -43,7 +44,7 @@ class EntryService @Autowired constructor(
     @SendTo
     fun findAccountByUsername(username: String): String {
         _logger.info("Received request for finding an account by username: $username")
-        return ResponseBuilder().ok().value(_accountService.findByUsername(username)).get()
+        return ResponseBuilder().ok().value(AccountResponse(_accountService.findByUsername(username))).get()
     }
 
     /**
