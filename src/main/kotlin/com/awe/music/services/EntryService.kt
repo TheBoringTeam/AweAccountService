@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 class EntryService @Autowired constructor(
         private val _accountService: AccountService
 ) {
-    private val _logger = Logger.getLogger(EntryService::class.java)
+    private val _log = Logger.getLogger(EntryService::class.java)
 
     private val _objectMapper = ObjectMapper()
 
@@ -29,9 +29,9 @@ class EntryService @Autowired constructor(
     @KafkaListener(topicPattern = "createAccountTopic", groupId = "alpha-service-group")
     @SendTo
     fun createAccountRequest(json: String): String {
-        _logger.info("Received request for creating user")
+        _log.info("Received request for creating user")
         val request = _objectMapper.readValue(json, AccountCreateRequest::class.java)
-        _logger.info("Sending response...")
+        _log.info("Sending response...")
         return ResponseBuilder().ok().value(AccountResponse(_accountService.save(request))).get()
     }
 
@@ -40,11 +40,23 @@ class EntryService @Autowired constructor(
      * @param username String contains account username for query
      * @return AweResponse object that contains Account entity
      */
-    @KafkaListener(topicPattern = "findAccountByUsernameTopic", groupId = "accountServiceGroup")
+    @KafkaListener(topicPattern = "findAccountByUsernameTopic", groupId = "alpha-service-group")
     @SendTo
     fun findAccountByUsername(username: String): String {
-        _logger.info("Received request for finding an account by username: $username")
+        _log.info("Received request for finding an account by username: $username")
         return ResponseBuilder().ok().value(AccountResponse(_accountService.findByUsername(username))).get()
+    }
+
+    /**
+     * Finds account entity by email and returns it.
+     * @param email String contains account email
+     * @return AweResponse object contains Account entity
+     */
+    @KafkaListener(topicPattern = "findAccountByEmailTopic", groupId = "alpha-service-group")
+    @SendTo
+    fun findAccountByEmail(email: String): String {
+        _log.info("Received request for finding an account by email: $email")
+        return ResponseBuilder().ok().value(AccountResponse(_accountService.findByEmail(email))).get()
     }
 
     /**
@@ -55,7 +67,7 @@ class EntryService @Autowired constructor(
     @KafkaListener(topicPattern = "existsAccountByUsernameTopic", groupId = "accountServiceGroup")
     @SendTo
     fun existsByUsername(username: String): String {
-        _logger.info("Received request for checking account exists by username: $username")
+        _log.info("Received request for checking account exists by username: $username")
         return ResponseBuilder().ok().value(_accountService.existsByUsername(username)).get()
     }
 }

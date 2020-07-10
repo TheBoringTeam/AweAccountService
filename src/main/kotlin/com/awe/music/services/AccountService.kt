@@ -29,6 +29,10 @@ class AccountService @Autowired constructor(private val _accountRepository: Acco
         return _accountRepository.findByUuid(uuid).orElseThrow { ResourceNotFoundException("There is no user with provided uuid") }
     }
 
+    fun findByEmail(email: String): Account {
+        return _accountRepository.findByEmail(email).orElseThrow { ResourceNotFoundException("There is not user with provided email") }
+    }
+
     fun save(cr: AccountCreateRequest): Account {
         _logger.info("Saving user with username: ${cr.username}")
         return _accountRepository.save(Account(cr.username, cr.password, cr.email, cr.username, cr.isCollective))
