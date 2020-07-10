@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.stereotype.Service
+import java.util.*
 
 /**
  * Service responsible for handling all requests from edge service.
@@ -64,10 +65,17 @@ class EntryService @Autowired constructor(
      * @param username String contains account username
      * @return AweResponse object that contains Boolean
      */
-    @KafkaListener(topicPattern = "existsAccountByUsernameTopic", groupId = "accountServiceGroup")
+    @KafkaListener(topicPattern = "existsAccountByUsernameTopic", groupId = "alpha-service-group")
     @SendTo
     fun existsByUsername(username: String): String {
         _log.info("Received request for checking account exists by username: $username")
         return ResponseBuilder().ok().value(_accountService.existsByUsername(username)).get()
+    }
+
+    @KafkaListener(topicPattern = "findAccountByUUIDTopic", groupId = "alpha-service-group")
+    @SendTo
+    fun findAccountByUUID(uuid: String): String {
+        _log.info("Received request for finding account by uuid: $uuid")
+        return ResponseBuilder().ok().value(_accountService.findByUUID(UUID.fromString(uuid))).get()
     }
 }
