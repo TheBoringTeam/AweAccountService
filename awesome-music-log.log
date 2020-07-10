@@ -242,3 +242,16 @@
 2020-07-08 22:12:25 INFO  EntryService:32 - Received request for creating user
 2020-07-08 22:12:25 INFO  EntryService:34 - Sending response...
 2020-07-08 22:12:25 INFO  AccountService:33 - Saving user with username: holker
+2020-07-10 19:26:03 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:33:23 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:33:52 INFO  EntryService:32 - Received request for creating user
+2020-07-10 19:33:52 INFO  EntryService:34 - Sending response...
+2020-07-10 19:33:52 INFO  AccountService:39 - Saving user with username: holker
+2020-07-10 19:34:00 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:34:01 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:37:08 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:37:09 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:38:03 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:38:04 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:41:10 INFO  EntryService:58 - Received request for finding an account by email: random.email@com
+2020-07-10 19:41:12 INFO  EntryService:58 - Received request for finding an account by email: random.email@com

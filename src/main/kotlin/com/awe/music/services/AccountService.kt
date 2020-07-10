@@ -6,6 +6,7 @@ import com.awe.music.repositories.AccountRepository
 import com.awe.music.utils.exceptions.ResourceNotFoundException
 import org.apache.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -13,7 +14,8 @@ import java.util.*
  * Service responsible for account business logic
  */
 @Service
-class AccountService @Autowired constructor(private val _accountRepository: AccountRepository) {
+class AccountService @Autowired constructor(private val _accountRepository: AccountRepository,
+                                            private val _passwordEncoder: PasswordEncoder) {
 
     private val _logger = Logger.getLogger(AccountService::class.java)
 
@@ -35,6 +37,6 @@ class AccountService @Autowired constructor(private val _accountRepository: Acco
 
     fun save(cr: AccountCreateRequest): Account {
         _logger.info("Saving user with username: ${cr.username}")
-        return _accountRepository.save(Account(cr.username, cr.password, cr.email, cr.username, cr.isCollective))
+        return _accountRepository.save(Account(cr.username, _passwordEncoder.encode(cr.password), cr.email, cr.username, cr.isCollective))
     }
 }

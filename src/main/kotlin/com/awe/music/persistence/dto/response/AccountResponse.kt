@@ -12,6 +12,9 @@ class AccountResponse @JsonIgnore constructor(account: Account) {
     @field:JsonProperty("username")
     val username = account.username
 
+    @field:JsonProperty("password")
+    val password = account.password
+
     @field:JsonProperty("email")
     val email = account.email
 
@@ -38,5 +41,4 @@ class AccountResponse @JsonIgnore constructor(account: Account) {
 
     @field:JsonProperty("permissions")
     val permissions = account.getPermissions()
-
 }
