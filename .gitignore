@@ -29,7 +29,4 @@ build/
 
 ### VS Code ###
 .vscode/
-
-src/main/resources/bootstrap.properties
-
 awesome-music-log.log
