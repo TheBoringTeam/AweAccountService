@@ -1,13 +1,16 @@
 package com.awe.music.services
 
 import com.awe.music.persistence.dto.request.AccountCreateRequest
+import com.awe.music.persistence.dto.response.AccountResponse
 import com.awe.music.utils.builders.ResponseBuilder
+import com.awe.music.utils.exceptions.ResourceNotFoundException
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.stereotype.Service
+import java.util.*
 
 /**
  * Service responsible for handling all requests from edge service.
@@ -16,7 +19,7 @@ import org.springframework.stereotype.Service
 class EntryService @Autowired constructor(
         private val _accountService: AccountService
 ) {
-    private val _logger = Logger.getLogger(EntryService::class.java)
+    private val _log = Logger.getLogger(EntryService::class.java)
 
     private val _objectMapper = ObjectMapper()
 
@@ -25,13 +28,13 @@ class EntryService @Autowired constructor(
      * @param json AccountCreateRequest object in string representation
      * @return AweResponse object that contains Account entity
      */
-    @KafkaListener(topicPattern = "createAccountTopic", groupId = "accountServiceGroup")
+    @KafkaListener(topicPattern = "createAccountTopic", groupId = "alpha-service-group")
     @SendTo
     fun createAccountRequest(json: String): String {
-        _logger.info("Received request for creating user")
+        _log.info("Received request for creating user")
         val request = _objectMapper.readValue(json, AccountCreateRequest::class.java)
-        _logger.info("Sending response...")
-        return ResponseBuilder().ok().value(_accountService.save(request)).get()
+        _log.info("Sending response...")
+        return ResponseBuilder().ok().value(AccountResponse(_accountService.save(request))).get()
     }
 
     /**
@@ -39,11 +42,32 @@ class EntryService @Autowired constructor(
      * @param username String contains account username for query
      * @return AweResponse object that contains Account entity
      */
-    @KafkaListener(topicPattern = "findAccountByUsernameTopic", groupId = "accountServiceGroup")
+    @KafkaListener(topicPattern = "findAccountByUsernameTopic", groupId = "alpha-service-group")
     @SendTo
     fun findAccountByUsername(username: String): String {
-        _logger.info("Received request for finding an account by username: $username")
-        return ResponseBuilder().ok().value(_accountService.findByUsername(username)).get()
+        _log.info("Received request for finding an account by username: $username")
+        return try {
+            ResponseBuilder().ok().value(AccountResponse(_accountService.findByUsername(username))).get()
+        } catch (e: ResourceNotFoundException) {
+            _log.info("Account with username $username does not exist")
+            ResponseBuilder().error().value(e.message).get()
+        }
+    }
+
+    /**
+     * Finds account entity by email and returns it.
+     * @param email String contains account email
+     * @return AweResponse object contains Account entity
+     */
+    @KafkaListener(topicPattern = "findAccountByEmailTopic", groupId = "alpha-service-group")
+    @SendTo
+    fun findAccountByEmail(email: String): String {
+        _log.info("Received request for finding an account by email: $email")
+        return try {
+            ResponseBuilder().ok().value(AccountResponse(_accountService.findByEmail(email))).get()
+        } catch (e: ResourceNotFoundException) {
+            ResponseBuilder().error().value(e.message).get()
+        }
     }
 
     /**
@@ -51,10 +75,22 @@ class EntryService @Autowired constructor(
      * @param username String contains account username
      * @return AweResponse object that contains Boolean
      */
-    @KafkaListener(topicPattern = "existsAccountByUsernameTopic", groupId = "accountServiceGroup")
+    @KafkaListener(topicPattern = "existsAccountByUsernameTopic", groupId = "alpha-service-group")
     @SendTo
     fun existsByUsername(username: String): String {
-        _logger.info("Received request for checking account exists by username: $username")
+        _log.info("Received request for checking account exists by username: $username")
         return ResponseBuilder().ok().value(_accountService.existsByUsername(username)).get()
+    }
+
+    @KafkaListener(topicPattern = "findAccountByUUIDTopic", groupId = "alpha-service-group")
+    @SendTo
+    fun findAccountByUUID(uuid: String): String {
+        _log.info("Received request for finding account by uuid: $uuid")
+        return try {
+            ResponseBuilder().ok().value(AccountResponse(_accountService.findByUUID(UUID.fromString(uuid)))).get()
+        } catch (e: ResourceNotFoundException) {
+            ResponseBuilder().error().value(e.message).get()
+        }
+
     }
 }

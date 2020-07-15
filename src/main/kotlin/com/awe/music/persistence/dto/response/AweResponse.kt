@@ -12,6 +12,6 @@ class AweResponse @JsonCreator constructor(
         @field:JsonProperty("value")
         val value: String,
 
-        @field:JsonProperty("is_successful")
+        @get:JsonProperty("is_successful")
         val isSuccessful: Boolean
 )

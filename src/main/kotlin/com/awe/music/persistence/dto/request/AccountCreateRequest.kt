@@ -1,18 +1,17 @@
 package com.awe.music.persistence.dto.request
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class AccountCreateRequest @JsonCreator constructor(
-        @field:JsonProperty("username")
+class AccountCreateRequest(
+        @JsonProperty("username")
         val username: String,
 
-        @field:JsonProperty("password")
+        @JsonProperty("password")
         val password: String,
 
-        @field:JsonProperty("is_collective")
+        @JsonProperty("is_collective")
         val isCollective: Boolean,
 
-        @field:JsonProperty("email")
+        @JsonProperty("email")
         val email: String
-)
+) {}
