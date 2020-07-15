@@ -3,6 +3,7 @@ package com.awe.music.services
 import com.awe.music.persistence.dto.request.AccountCreateRequest
 import com.awe.music.persistence.dto.response.AccountResponse
 import com.awe.music.utils.builders.ResponseBuilder
+import com.awe.music.utils.exceptions.ResourceNotFoundException
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,7 +46,12 @@ class EntryService @Autowired constructor(
     @SendTo
     fun findAccountByUsername(username: String): String {
         _log.info("Received request for finding an account by username: $username")
-        return ResponseBuilder().ok().value(AccountResponse(_accountService.findByUsername(username))).get()
+        return try {
+            ResponseBuilder().ok().value(AccountResponse(_accountService.findByUsername(username))).get()
+        } catch (e: ResourceNotFoundException) {
+            _log.info("Account with username $username does not exist")
+            ResponseBuilder().error().value(e.message).get()
+        }
     }
 
     /**
@@ -57,7 +63,11 @@ class EntryService @Autowired constructor(
     @SendTo
     fun findAccountByEmail(email: String): String {
         _log.info("Received request for finding an account by email: $email")
-        return ResponseBuilder().ok().value(AccountResponse(_accountService.findByEmail(email))).get()
+        return try {
+            ResponseBuilder().ok().value(AccountResponse(_accountService.findByEmail(email))).get()
+        } catch (e: ResourceNotFoundException) {
+            ResponseBuilder().error().value(e.message).get()
+        }
     }
 
     /**
@@ -76,6 +86,11 @@ class EntryService @Autowired constructor(
     @SendTo
     fun findAccountByUUID(uuid: String): String {
         _log.info("Received request for finding account by uuid: $uuid")
-        return ResponseBuilder().ok().value(_accountService.findByUUID(UUID.fromString(uuid))).get()
+        return try {
+            ResponseBuilder().ok().value(AccountResponse(_accountService.findByUUID(UUID.fromString(uuid)))).get()
+        } catch (e: ResourceNotFoundException) {
+            ResponseBuilder().error().value(e.message).get()
+        }
+
     }
 }
