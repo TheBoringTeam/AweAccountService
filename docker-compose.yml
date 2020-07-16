@@ -1,0 +1,8 @@
+version: "3.5"
+services:
+  account-service:
+    container_name: account-service
+    image: account-service
+    build: ./
+    ports:
+      - "8084:8084"
