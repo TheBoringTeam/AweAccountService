@@ -6,6 +6,7 @@ import com.awe.music.utils.builders.ResponseBuilder
 import com.awe.music.utils.exceptions.ResourceNotFoundException
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.log4j.Logger
+import org.hibernate.exception.ConstraintViolationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.SendTo
@@ -34,7 +35,13 @@ class EntryService @Autowired constructor(
         _log.info("Received request for creating user")
         val request = _objectMapper.readValue(json, AccountCreateRequest::class.java)
         _log.info("Sending response...")
-        return ResponseBuilder().ok().value(AccountResponse(_accountService.save(request))).get()
+        return try {
+            val account = _accountService.save(request)
+            // send registration email to user
+            ResponseBuilder().ok().value(AccountResponse(account)).get()
+        } catch (sqlException: ConstraintViolationException) {
+            ResponseBuilder().error().value("User already exists").get()
+        }
     }
 
     /**
