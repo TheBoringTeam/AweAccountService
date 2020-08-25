@@ -14,29 +14,33 @@ import java.util.*
  * Service responsible for account business logic
  */
 @Service
-class AccountService @Autowired constructor(private val _accountRepository: AccountRepository,
-                                            private val _passwordEncoder: PasswordEncoder) {
+class AccountService @Autowired constructor(private val accountRepository: AccountRepository,
+                                            private val passwordEncoder: PasswordEncoder) {
 
     private val _logger = Logger.getLogger(AccountService::class.java)
 
     fun findByUsername(username: String): Account {
-        return _accountRepository.findByUsername(username).orElseThrow { ResourceNotFoundException("There is no user with provided username") }
+        return accountRepository.findByUsername(username).orElseThrow { ResourceNotFoundException("There is no user with provided username") }
     }
 
     fun existsByUsername(username: String): Boolean {
-        return _accountRepository.existsByUsername(username)
+        return accountRepository.existsByUsername(username)
     }
 
     fun findByUUID(uuid: UUID): Account {
-        return _accountRepository.findByUuid(uuid).orElseThrow { ResourceNotFoundException("There is no user with provided uuid") }
+        return accountRepository.findByUuid(uuid).orElseThrow { ResourceNotFoundException("There is no user with provided uuid") }
     }
 
     fun findByEmail(email: String): Account {
-        return _accountRepository.findByEmail(email).orElseThrow { ResourceNotFoundException("There is not user with provided email") }
+        return accountRepository.findByEmail(email).orElseThrow { ResourceNotFoundException("There is not user with provided email") }
+    }
+
+    fun existsByEmail(email: String): Boolean {
+        return accountRepository.existsByEmail(email)
     }
 
     fun save(cr: AccountCreateRequest): Account {
         _logger.info("Saving user with username: ${cr.username}")
-        return _accountRepository.save(Account(cr.username, _passwordEncoder.encode(cr.password), cr.email, cr.username, cr.isCollective))
+        return accountRepository.save(Account(cr.username, passwordEncoder.encode(cr.password), cr.email, cr.username, cr.isCollective))
     }
 }

@@ -18,7 +18,7 @@ import java.util.*
  */
 @Service
 class EntryService @Autowired constructor(
-        private val _accountService: AccountService
+        private val accountService: AccountService
 ) {
     private val _log = Logger.getLogger(EntryService::class.java)
 
@@ -36,7 +36,7 @@ class EntryService @Autowired constructor(
         val request = _objectMapper.readValue(json, AccountCreateRequest::class.java)
         _log.info("Sending response...")
         return try {
-            val account = _accountService.save(request)
+            val account = accountService.save(request)
             // send registration email to user
             ResponseBuilder().ok().value(AccountResponse(account)).get()
         } catch (sqlException: ConstraintViolationException) {
@@ -54,7 +54,7 @@ class EntryService @Autowired constructor(
     fun findAccountByUsername(username: String): String {
         _log.info("Received request for finding an account by username: $username")
         return try {
-            ResponseBuilder().ok().value(AccountResponse(_accountService.findByUsername(username))).get()
+            ResponseBuilder().ok().value(AccountResponse(accountService.findByUsername(username))).get()
         } catch (e: ResourceNotFoundException) {
             _log.info("Account with username $username does not exist")
             ResponseBuilder().error().value(e.message).get()
@@ -71,7 +71,7 @@ class EntryService @Autowired constructor(
     fun findAccountByEmail(email: String): String {
         _log.info("Received request for finding an account by email: $email")
         return try {
-            ResponseBuilder().ok().value(AccountResponse(_accountService.findByEmail(email))).get()
+            ResponseBuilder().ok().value(AccountResponse(accountService.findByEmail(email))).get()
         } catch (e: ResourceNotFoundException) {
             ResponseBuilder().error().value(e.message).get()
         }
@@ -86,7 +86,19 @@ class EntryService @Autowired constructor(
     @SendTo
     fun existsByUsername(username: String): String {
         _log.info("Received request for checking account exists by username: $username")
-        return ResponseBuilder().ok().value(_accountService.existsByUsername(username)).get()
+        return ResponseBuilder().ok().value(accountService.existsByUsername(username)).get()
+    }
+
+    /**
+     * Check whether account exists with provided email
+     * @param email String contains account email
+     * @return AweResponse object that contains Boolean
+     */
+    @KafkaListener(topicPattern = "existsAccountByEmailTopic", groupId = "alpha-service-group")
+    @SendTo
+    fun existsByEmail(email: String): String {
+        _log.info("Received request for checking account exists by email: $email")
+        return ResponseBuilder().ok().value(accountService.existsByEmail(email)).get()
     }
 
     @KafkaListener(topicPattern = "findAccountByUUIDTopic", groupId = "alpha-service-group")
@@ -94,7 +106,7 @@ class EntryService @Autowired constructor(
     fun findAccountByUUID(uuid: String): String {
         _log.info("Received request for finding account by uuid: $uuid")
         return try {
-            ResponseBuilder().ok().value(AccountResponse(_accountService.findByUUID(UUID.fromString(uuid)))).get()
+            ResponseBuilder().ok().value(AccountResponse(accountService.findByUUID(UUID.fromString(uuid)))).get()
         } catch (e: ResourceNotFoundException) {
             ResponseBuilder().error().value(e.message).get()
         }
